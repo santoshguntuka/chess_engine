@@ -74,39 +74,62 @@ def get_square_under_mouse(pos):
     col = x // SQUARE_SIZE
     return chess.square(col, 7 - row)
 
-# Function to handle pawn promotion
-def handle_pawn_promotion():
+# Function to handle pawn promotion with a pop-up
+def handle_pawn_promotion(window):
     """
-    Allows the player to choose what piece the pawn should be promoted to.
+    Allows the player to choose what piece the pawn should be promoted to using a small pop-up.
     """
     promotion_menu = True
     promotion_choice = None
-
+    popup_width, popup_height = 200, 100  # Pop-up size
+    popup_x = (WIDTH - popup_width) // 2  # Center the pop-up
+    popup_y = (HEIGHT - popup_height) // 2
+    
+    font = pygame.font.SysFont("Arial", 24)
+    
     while promotion_menu:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
-            # Handle keyboard input for promotion
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_q:
+            # Handle mouse clicks for promotion
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+
+                # Check if the user clicked on the piece options
+                if popup_x + 10 <= mouse_x <= popup_x + 50 and popup_y + 40 <= mouse_y <= popup_y + 80:
                     promotion_choice = chess.QUEEN
-                elif event.key == pygame.K_r:
+                elif popup_x + 60 <= mouse_x <= popup_x + 100 and popup_y + 40 <= mouse_y <= popup_y + 80:
                     promotion_choice = chess.ROOK
-                elif event.key == pygame.K_b:
+                elif popup_x + 110 <= mouse_x <= popup_x + 150 and popup_y + 40 <= mouse_y <= popup_y + 80:
                     promotion_choice = chess.BISHOP
-                elif event.key == pygame.K_n:
+                elif popup_x + 160 <= mouse_x <= popup_x + 200 and popup_y + 40 <= mouse_y <= popup_y + 80:
                     promotion_choice = chess.KNIGHT
 
                 if promotion_choice:
                     promotion_menu = False
 
-        # Draw promotion options
-        window.fill(WHITE)
-        font = pygame.font.SysFont("Arial", 30)
-        text = font.render("Promote pawn to (Q)ueen, (R)ook, (B)ishop, (K)night:", True, BLACK)
-        window.blit(text, (20, HEIGHT // 2 - 40))
+        # Draw the pop-up box
+        pygame.draw.rect(window, WHITE, (popup_x, popup_y, popup_width, popup_height))
+        pygame.draw.rect(window, BLACK, (popup_x, popup_y, popup_width, popup_height), 2)  # Border
+
+        # Draw text for promotion options
+        text = font.render("Choose Promotion", True, BLACK)
+        window.blit(text, (popup_x + 20, popup_y + 10))
+
+        # Draw the promotion options
+        pygame.draw.rect(window, LIGHT_SQUARE, (popup_x + 10, popup_y + 40, 40, 40))
+        window.blit(PIECES[chess.QUEEN]['w'], (popup_x + 10, popup_y + 40))
+
+        pygame.draw.rect(window, LIGHT_SQUARE, (popup_x + 60, popup_y + 40, 40, 40))
+        window.blit(PIECES[chess.ROOK]['w'], (popup_x + 60, popup_y + 40))
+
+        pygame.draw.rect(window, LIGHT_SQUARE, (popup_x + 110, popup_y + 40, 40, 40))
+        window.blit(PIECES[chess.BISHOP]['w'], (popup_x + 110, popup_y + 40))
+
+        pygame.draw.rect(window, LIGHT_SQUARE, (popup_x + 160, popup_y + 40, 40, 40))
+        window.blit(PIECES[chess.KNIGHT]['w'], (popup_x + 160, popup_y + 40))
 
         pygame.display.flip()
 
@@ -137,19 +160,23 @@ def main():
                 else:
                     move = chess.Move(from_square=selected_square, to_square=square)
 
-                    # Handle pawn promotion
-                    if board.is_legal(move):
-                        if board.piece_at(selected_square).piece_type == chess.PAWN:
-                            # Check if pawn is promoting (white to rank 1 or black to rank 8)
-                            if (board.turn == chess.WHITE and chess.square_rank(square) == 0) or \
-                               (board.turn == chess.BLACK and chess.square_rank(square) == 7):
-                                # Prompt player for pawn promotion
-                                promotion_choice = handle_pawn_promotion()
+                    # Check if the selected piece is a pawn and is eligible for promotion
+                    if board.piece_at(selected_square).piece_type == chess.PAWN:
+                        # If the pawn is about to promote (white pawn to 8th rank, black pawn to 1st rank)
+                        if (board.turn == chess.WHITE and chess.square_rank(square) == 7) or \
+                           (board.turn == chess.BLACK and chess.square_rank(square) == 0):
+                            # Trigger promotion
+                            promotion_choice = handle_pawn_promotion(window)
+                            if promotion_choice:
+                                # Update the move with the chosen promotion piece
                                 move = chess.Move(from_square=selected_square, to_square=square, promotion=promotion_choice)
 
+                    # If the move is legal, push it to the board
+                    if board.is_legal(move):
                         board.push(move)
                         selected_square = None
 
+                        # Check for end conditions (checkmate, stalemate)
                         if board.is_checkmate():
                             print("Checkmate!")
                             pygame.quit()
@@ -173,7 +200,5 @@ def main():
         pygame.display.update()
         clock.tick(FPS)
 
-
 if __name__ == "__main__":
     main()
-
