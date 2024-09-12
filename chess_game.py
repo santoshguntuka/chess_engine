@@ -1,6 +1,9 @@
 import pygame
 import sys
 import chess
+import tensorflow as tf
+import numpy as np
+import json
 
 # Initialize Pygame
 pygame.init()
@@ -38,6 +41,41 @@ for piece in PIECES:
 # Chess board using python-chess
 board = chess.Board()
 
+# Load the AI model and move dictionaries
+model = tf.keras.models.load_model('data/chess_ai_model.h5')  # Load the trained model
+with open('data/move_dict.json', 'r') as f:
+    move_dict = json.load(f)
+with open('data/reverse_move_dict.json', 'r') as f:
+    reverse_move_dict = json.load(f)
+
+# Function to predict the AI's move using the neural network
+def predict_ai_move(board):
+    def board_to_tensor(board):
+        tensor = np.zeros((12, 8, 8), dtype=np.float32)
+        piece_map = {chess.PAWN: 0, chess.KNIGHT: 1, chess.BISHOP: 2, chess.ROOK: 3, chess.QUEEN: 4, chess.KING: 5}
+        for square in chess.SQUARES:
+            piece = board.piece_at(square)
+            if piece:
+                piece_type = piece_map[piece.piece_type]
+                color = 0 if piece.color == chess.WHITE else 1
+                tensor[color * 6 + piece_type][7 - chess.square_rank(square)][chess.square_file(square)] = 1
+        return tensor.flatten()
+    
+    board_tensor = board_to_tensor(board)
+    board_tensor = np.expand_dims(board_tensor, axis=0)  # Add batch dimension
+    predictions = model.predict(board_tensor)[0]  # Get predictions
+
+    # Get the best predicted move
+    predicted_move_idx = np.argmax(predictions)
+    predicted_move_uci = reverse_move_dict[str(predicted_move_idx)]
+    ai_move = chess.Move.from_uci(predicted_move_uci)
+
+    # Ensure the predicted move is legal
+    if ai_move in board.legal_moves:
+        return ai_move
+    else:
+        return np.random.choice(list(board.legal_moves))  # Fallback in case of an illegal move
+
 # Function to draw the chessboard
 def draw_chessboard(window):
     font = pygame.font.SysFont("Arial", 24)
@@ -74,67 +112,6 @@ def get_square_under_mouse(pos):
     col = x // SQUARE_SIZE
     return chess.square(col, 7 - row)
 
-# Function to handle pawn promotion with a pop-up
-def handle_pawn_promotion(window):
-    """
-    Allows the player to choose what piece the pawn should be promoted to using a small pop-up.
-    """
-    promotion_menu = True
-    promotion_choice = None
-    popup_width, popup_height = 200, 100  # Pop-up size
-    popup_x = (WIDTH - popup_width) // 2  # Center the pop-up
-    popup_y = (HEIGHT - popup_height) // 2
-    
-    font = pygame.font.SysFont("Arial", 24)
-    
-    while promotion_menu:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-
-            # Handle mouse clicks for promotion
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_x, mouse_y = pygame.mouse.get_pos()
-
-                # Check if the user clicked on the piece options
-                if popup_x + 10 <= mouse_x <= popup_x + 50 and popup_y + 40 <= mouse_y <= popup_y + 80:
-                    promotion_choice = chess.QUEEN
-                elif popup_x + 60 <= mouse_x <= popup_x + 100 and popup_y + 40 <= mouse_y <= popup_y + 80:
-                    promotion_choice = chess.ROOK
-                elif popup_x + 110 <= mouse_x <= popup_x + 150 and popup_y + 40 <= mouse_y <= popup_y + 80:
-                    promotion_choice = chess.BISHOP
-                elif popup_x + 160 <= mouse_x <= popup_x + 200 and popup_y + 40 <= mouse_y <= popup_y + 80:
-                    promotion_choice = chess.KNIGHT
-
-                if promotion_choice:
-                    promotion_menu = False
-
-        # Draw the pop-up box
-        pygame.draw.rect(window, WHITE, (popup_x, popup_y, popup_width, popup_height))
-        pygame.draw.rect(window, BLACK, (popup_x, popup_y, popup_width, popup_height), 2)  # Border
-
-        # Draw text for promotion options
-        text = font.render("Choose Promotion", True, BLACK)
-        window.blit(text, (popup_x + 20, popup_y + 10))
-
-        # Draw the promotion options
-        pygame.draw.rect(window, LIGHT_SQUARE, (popup_x + 10, popup_y + 40, 40, 40))
-        window.blit(PIECES[chess.QUEEN]['w'], (popup_x + 10, popup_y + 40))
-
-        pygame.draw.rect(window, LIGHT_SQUARE, (popup_x + 60, popup_y + 40, 40, 40))
-        window.blit(PIECES[chess.ROOK]['w'], (popup_x + 60, popup_y + 40))
-
-        pygame.draw.rect(window, LIGHT_SQUARE, (popup_x + 110, popup_y + 40, 40, 40))
-        window.blit(PIECES[chess.BISHOP]['w'], (popup_x + 110, popup_y + 40))
-
-        pygame.draw.rect(window, LIGHT_SQUARE, (popup_x + 160, popup_y + 40, 40, 40))
-        window.blit(PIECES[chess.KNIGHT]['w'], (popup_x + 160, popup_y + 40))
-
-        pygame.display.flip()
-
-    return promotion_choice
-
 # Main loop
 def main():
     global board
@@ -154,24 +131,13 @@ def main():
 
                 if selected_square is None:
                     piece = board.piece_at(square)
-                    if piece and piece.color == board.turn:
+                    if piece and piece.color == board.turn:  # Human player's turn
                         selected_square = square
                         print(f"Selected {piece} on {chess.square_name(selected_square)}")
                 else:
                     move = chess.Move(from_square=selected_square, to_square=square)
 
-                    # Check if the selected piece is a pawn and is eligible for promotion
-                    if board.piece_at(selected_square).piece_type == chess.PAWN:
-                        # If the pawn is about to promote (white pawn to 8th rank, black pawn to 1st rank)
-                        if (board.turn == chess.WHITE and chess.square_rank(square) == 7) or \
-                           (board.turn == chess.BLACK and chess.square_rank(square) == 0):
-                            # Trigger promotion
-                            promotion_choice = handle_pawn_promotion(window)
-                            if promotion_choice:
-                                # Update the move with the chosen promotion piece
-                                move = chess.Move(from_square=selected_square, to_square=square, promotion=promotion_choice)
-
-                    # If the move is legal, push it to the board
+                    # Check if the move is legal, then push it to the board
                     if board.is_legal(move):
                         board.push(move)
                         selected_square = None
@@ -189,6 +155,23 @@ def main():
                             print("Check!")
                     else:
                         selected_square = None
+
+        # AI's turn
+        if not board.turn:  # AI plays as black
+            ai_move = predict_ai_move(board)
+            board.push(ai_move)
+
+            # Check for end conditions (checkmate, stalemate)
+            if board.is_checkmate():
+                print("Checkmate! AI wins!")
+                pygame.quit()
+                sys.exit()
+            elif board.is_stalemate():
+                print("Stalemate!")
+                pygame.quit()
+                sys.exit()
+            elif board.is_check():
+                print("Check!")
 
         # Fill the window with the chessboard
         draw_chessboard(window)
