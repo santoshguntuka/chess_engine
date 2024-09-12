@@ -87,7 +87,8 @@ If you'd like to contribute to this project:
 
 Fork the repository.
 
-Create a new branch.
+Create a negit rebase --continue
+w branch.
 
 Submit a pull request.
    
