@@ -44,7 +44,7 @@ Ensure you have the following installed:
    
    source myenv/bin/activate
    
-   # On Windows: myenv\Scripts\activate
+   On Windows: myenv\Scripts\activate
 
 5. **Install the dependencies**
    pip install -r requirements.txt
