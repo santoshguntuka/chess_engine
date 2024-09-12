@@ -77,23 +77,44 @@ def predict_ai_move(board):
         return np.random.choice(list(board.legal_moves))  # Fallback in case of an illegal move
 
 # Function to draw the chessboard
+# Function to draw the chessboard
+# Function to draw the chessboard
 def draw_chessboard(window):
-    font = pygame.font.SysFont("Arial", 24)
+    # Use a slightly smaller font for subtle labels
+    font = pygame.font.SysFont("Arial", 18)
 
     for row in range(8):
         for col in range(8):
+            # Choose the color based on the square position
             color = LIGHT_SQUARE if (row + col) % 2 == 0 else DARK_SQUARE
             pygame.draw.rect(window, color, (col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
             # Add column labels (a-h) at the bottom
             if row == 7:
-                label = font.render(chr(97 + col), True, BLACK if color == LIGHT_SQUARE else WHITE)
-                window.blit(label, (col * SQUARE_SIZE + SQUARE_SIZE - 20, HEIGHT - 30))
+                # Use contrasting color based on the square color
+                text_color = BLACK if color == LIGHT_SQUARE else WHITE
+                label = font.render(chr(97 + col), True, text_color)
+                
+                # Draw a subtle background rectangle behind the label
+                pygame.draw.rect(window, LIGHT_SQUARE if color == DARK_SQUARE else DARK_SQUARE,
+                                 (col * SQUARE_SIZE + SQUARE_SIZE - 25, HEIGHT - 25, 20, 20))
+                
+                # Blit the label on top of the background
+                window.blit(label, (col * SQUARE_SIZE + SQUARE_SIZE - 20, HEIGHT - 25))  # Adjusted positioning
 
             # Add row labels (1-8) on the left
             if col == 0:
-                label = font.render(str(8 - row), True, BLACK if color == LIGHT_SQUARE else WHITE)
-                window.blit(label, (10, row * SQUARE_SIZE + 10))
+                # Use contrasting color based on the square color
+                text_color = BLACK if color == LIGHT_SQUARE else WHITE
+                label = font.render(str(8 - row), True, text_color)
+
+                # Draw a subtle background rectangle behind the label
+                pygame.draw.rect(window, LIGHT_SQUARE if color == DARK_SQUARE else DARK_SQUARE,
+                                 (5, row * SQUARE_SIZE + 5, 20, 20))
+                
+                # Blit the label on top of the background
+                window.blit(label, (10, row * SQUARE_SIZE + 5))  # Adjusted positioning
+
 
 # Function to draw pieces on the board
 def draw_pieces(window, board):
@@ -111,6 +132,24 @@ def get_square_under_mouse(pos):
     row = y // SQUARE_SIZE
     col = x // SQUARE_SIZE
     return chess.square(col, 7 - row)
+
+# Function to display a message (e.g., Checkmate, Stalemate)
+def display_message(window, message):
+    font = pygame.font.SysFont("Arial", 36)
+    text = font.render(message, True, (255, 0, 0))  # Red color for the text
+    text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2))  # Center the message
+    window.blit(text, text_rect)
+    pygame.display.update()
+
+    # Wait for a key press or window close event
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+                waiting = False
 
 # Main loop
 def main():
@@ -144,11 +183,12 @@ def main():
 
                         # Check for end conditions (checkmate, stalemate)
                         if board.is_checkmate():
-                            print("Checkmate!")
+                            winner = "Black" if board.turn == chess.WHITE else "White"
+                            display_message(window, f"Checkmate! {winner} wins!")
                             pygame.quit()
                             sys.exit()
                         elif board.is_stalemate():
-                            print("Stalemate!")
+                            display_message(window, "Stalemate!")
                             pygame.quit()
                             sys.exit()
                         elif board.is_check():
@@ -163,11 +203,11 @@ def main():
 
             # Check for end conditions (checkmate, stalemate)
             if board.is_checkmate():
-                print("Checkmate! AI wins!")
+                display_message(window, "Checkmate! AI wins!")
                 pygame.quit()
                 sys.exit()
             elif board.is_stalemate():
-                print("Stalemate!")
+                display_message(window, "Stalemate!")
                 pygame.quit()
                 sys.exit()
             elif board.is_check():
