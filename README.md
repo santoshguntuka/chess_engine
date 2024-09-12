@@ -1,5 +1,9 @@
+Chess AI Engine with Neural Networks
+
 This project is a Chess AI Engine built using Pygame for the graphical interface and TensorFlow for the neural network model. The engine allows a human player to compete against an AI that predicts the best moves based on a pre-trained model. The AI is trained using historical chess games stored in PGN (Portable Game Notation) format.
 
+Project Structure
+Here’s a breakdown of the key files and directories in this project:
 
 
 How the Chess AI Works
@@ -91,3 +95,10 @@ If you'd like to contribute to this project:
 Fork the repository.
 Create a new branch.
 Submit a pull request.
+License
+This project is licensed under the MIT License.
+
+Future Improvements
+Implementing a more sophisticated neural network architecture for better move predictions.
+Adding support for training the model on more advanced chess positions or specific strategies.
+Enhancing the game interface with additional features like undo, replay, and save game functionality.
