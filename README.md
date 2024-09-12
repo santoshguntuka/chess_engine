@@ -35,19 +35,23 @@ Ensure you have the following installed:
 
 
    git clone https://github.com/YOUR-USERNAME/chess_engine.git
+   
    cd chess_engine
 
-2. **Create a virtual enironment**
+3. **Create a virtual enironment**
 
    python3 -m venv myenv
-   source myenv/bin/activate  # On Windows: myenv\Scripts\activate
+   
+   source myenv/bin/activate
+   
+   # On Windows: myenv\Scripts\activate
 
-3. **Install the dependencies**
+5. **Install the dependencies**
    pip install -r requirements.txt
 
 The trained model will be saved as chess_ai_model.h5, which will be used by the chess game to predict moves.
 
-**File Descriptions**
+###**File Descriptions**
 **chess_game.py**: Main script that runs the chess game using Pygame and the trained AI.
 
 **data_preprocessing.py**: Preprocesses PGN chess games into a format suitable for training the neural network.
@@ -63,18 +67,18 @@ The trained model will be saved as chess_ai_model.h5, which will be used by the 
 **X.npy and y.npy**: Preprocessed input and output data for training the neural network model.
 
 
-**To install all dependencies**
+###**To install all dependencies**
 
 pip install -r requirements.txt
 
-**How to Add More Data**
+###**How to Add More Data**
 Add additional PGN files of chess games to your project.
 
 Run the data_preprocessing.py script to process the new data.
 
 Retrain the model using train_model.py to include the new data in the AI's learning process.
 
-**Contributing**
+###**Contributing**
 
 If you'd like to contribute to this project:
 
