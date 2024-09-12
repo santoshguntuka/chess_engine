@@ -47,6 +47,7 @@ Ensure you have the following installed:
    On Windows: myenv\Scripts\activate
 
 5. **Install the dependencies**
+6. 
    pip install -r requirements.txt
 
 The trained model will be saved as chess_ai_model.h5, which will be used by the chess game to predict moves.
