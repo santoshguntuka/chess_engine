@@ -34,8 +34,8 @@ Ensure you have the following installed:
 1. **Clone the repository** (or download it):
 
 
-git clone https://github.com/YOUR-USERNAME/chess_engine.git
-cd chess_engine
+   git clone https://github.com/YOUR-USERNAME/chess_engine.git
+   cd chess_engine
 
 2. **Create a virtual enironment**
 
@@ -48,34 +48,40 @@ cd chess_engine
 The trained model will be saved as chess_ai_model.h5, which will be used by the chess game to predict moves.
 
 **File Descriptions**
-chess_game.py: Main script that runs the chess game using Pygame and the trained AI.
+**chess_game.py**: Main script that runs the chess game using Pygame and the trained AI.
 
-data_preprocessing.py: Preprocesses PGN chess games into a format suitable for training the neural network.
+**data_preprocessing.py**: Preprocesses PGN chess games into a format suitable for training the neural network.
 
-train_model.py: Trains the neural network using the processed chess data and saves the model as chess_ai_model.h5.
+**train_model.py**: Trains the neural network using the processed chess data and saves the model as chess_ai_model.h5.
 
-chess_ai_model.h5: The trained neural network model used by the AI to predict moves during the game.
+**chess_ai_model.h5**: The trained neural network model used by the AI to predict moves during the game.
 
-move_dict.json and reverse_move_dict.json: Dictionaries for converting chess moves to numerical indices and vice versa.
+**move_dict.json and reverse_move_dict.json**: Dictionaries for converting chess moves to numerical indices and vice versa.
 
-assets/: Folder containing images of chess pieces used in the Pygame interface.
+**assets/**: Folder containing images of chess pieces used in the Pygame interface.
 
-X.npy and y.npy: Preprocessed input and output data for training the neural network model.
+**X.npy and y.npy**: Preprocessed input and output data for training the neural network model.
 
 
-** To install all dependencies **
+**To install all dependencies**
+
 pip install -r requirements.txt
 
 **How to Add More Data**
 Add additional PGN files of chess games to your project.
+
 Run the data_preprocessing.py script to process the new data.
+
 Retrain the model using train_model.py to include the new data in the AI's learning process.
 
 **Contributing**
+
 If you'd like to contribute to this project:
 
 Fork the repository.
+
 Create a new branch.
+
 Submit a pull request.
    
 
