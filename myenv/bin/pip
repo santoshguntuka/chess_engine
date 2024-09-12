@@ -1,4 +1,4 @@
-#!/home/santosh/chess_engine/myenv/bin/python3
+#!/home/santosh/chess_engine-1/myenv/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys
