@@ -2,7 +2,7 @@
 
 This project is a **Chess AI Engine** built using **Pygame** for the graphical interface and **TensorFlow** for the neural network model. The engine allows a human player to compete against an AI that predicts the best moves based on a pre-trained model. The AI is trained using historical chess games stored in **PGN (Portable Game Notation)** format.
 
-## **Project Structure**
+
 
 
 ## **How the Chess AI Works**
