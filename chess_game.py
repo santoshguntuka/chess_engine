@@ -42,10 +42,10 @@ for piece in PIECES:
 board = chess.Board()
 
 # Load the AI model and move dictionaries
-model = tf.keras.models.load_model('data/chess_ai_model.h5')  # Load the trained model
-with open('data/move_dict.json', 'r') as f:
+model = tf.keras.models.load_model('/home/santosh/chess_engine-1/data/chess_ai_model .h5')  # Load the trained model
+with open('/home/santosh/chess_engine-1/data/move_dict .json', 'r') as f:
     move_dict = json.load(f)
-with open('data/reverse_move_dict.json', 'r') as f:
+with open('/home/santosh/chess_engine-1/data/reverse_move_dict .json', 'r') as f:
     reverse_move_dict = json.load(f)
 
 # Function to predict the AI's move using the neural network
