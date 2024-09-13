@@ -80,7 +80,12 @@ def pad_arrays(y_existing, y_new):
     return y_existing, y_new
 
 # Prepare the dataset (appending new data)
+# Prepare the dataset (appending new data)
 def create_dataset(training_data, move_dict, data_dir="data"):
+    # Ensure the 'data' directory exists
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
+
     X, y = [], []
     num_classes = len(move_dict)  # Get total number of unique moves for one-hot encoding
 
@@ -114,6 +119,7 @@ def create_dataset(training_data, move_dict, data_dir="data"):
     # Save the updated dataset
     np.save(f"{data_dir}/X.npy", X)
     np.save(f"{data_dir}/y.npy", y)
+
 
 # Main process to parse PGN, create dictionaries, and generate dataset in batches
 if __name__ == "__main__":
